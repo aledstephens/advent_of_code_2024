@@ -25,22 +25,13 @@ def test_split_string_on_dont():
 
     assert result == desired
 
-def test_insert_between():
-    input = ['a string with 2 ', 's in it, also ', ' here']
-    desired = ['a string with 2 ', 'ignore_next', 's in it, also ', 'ignore_next', ' here', 'ignore_next']
-
-    result = insert_between(input)
-
-    assert result == desired
 
 def test_part_2():
     input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
     split_string = split_str_on_dont(input)
-    split_string = insert_between(split_string)
     split_string = split_str_on_do(split_string)
-    split_string = flatten_list_to_list(split_string)
-    split_string = remove_incompatible_items(split_string)
-    split_string = flatten_list_to_string(split_string)
+    split_string = remove_invalid_items(split_string)
+    split_string = str(split_string)
     matches = extract_mul(split_string)
     result = mul_tuples_and_sum(matches)
 
@@ -49,11 +40,9 @@ def test_part_2():
 def test_part_2_mod():
     input = "do()xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+do()..do()mul(32,64)dont()..don't()(mul(11,8)undo()?mul(8,5))"
     split_string = split_str_on_dont(input)
-    split_string = insert_between(split_string)
     split_string = split_str_on_do(split_string)
-    split_string = flatten_list_to_list(split_string)
-    split_string = remove_incompatible_items(split_string)
-    split_string = flatten_list_to_string(split_string)
+    split_string = remove_invalid_items(split_string)
+    split_string = str(split_string)
     matches = extract_mul(split_string)
     result = mul_tuples_and_sum(matches)
 
@@ -63,24 +52,20 @@ def test_part_2_mod():
 def test_part_2_dont_at_start():
     input = "don't()xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
     split_string = split_str_on_dont(input)
-    split_string = insert_between(split_string)
     split_string = split_str_on_do(split_string)
-    split_string = flatten_list_to_list(split_string)
-    split_string = remove_incompatible_items(split_string)
-    split_string = flatten_list_to_string(split_string)
+    split_string = remove_invalid_items(split_string)
+    split_string = str(split_string)
     matches = extract_mul(split_string)
     result = mul_tuples_and_sum(matches)
 
     assert result == 40
 
 def test_part_2_consecutive_donts():
-    input = "mul(1,2)don't()do()mul(3,4)don't()don't()mul(5,6)don't()mul(7,8)do()mul(9,10)don't()do()don't()"
+    input = "do()mul(1,2)don't()do()mul(3,4)don't()don't()mul(5,6)don't()mul(7,8)do()mul(9,10)don't()do()don't()"
     split_string = split_str_on_dont(input)
-    split_string = insert_between(split_string)
     split_string = split_str_on_do(split_string)
-    split_string = flatten_list_to_list(split_string)
-    split_string = remove_incompatible_items(split_string)
-    split_string = flatten_list_to_string(split_string)
+    split_string = remove_invalid_items(split_string)
+    split_string = str(split_string)
     matches = extract_mul(split_string)
     result = mul_tuples_and_sum(matches)
 

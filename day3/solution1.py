@@ -45,19 +45,14 @@ def mul_tuples_and_sum(input: list[tuple[str,str]]) -> list[int]:
 
 
 # PART 2 Functions:
-# idea is to split on don't(), insert a marker, split on do(), remove item directly after marker, and return string
+# idea is to split on don't() to get a list,
+# split those lists on do(),
+# ignore the first element of each sub-list
+# but always keep the first list
+
 def split_str_on_dont(input: str) -> list[str]:
     split_string = input.split("don't()")
     return split_string
-
-
-def insert_between(lst: list[str]) -> list[str]:
-    insert_str = 'ignore_next'
-    result = []
-    for item in lst:
-        result.append(item)
-        result.append(insert_str)
-    return result
 
 
 def split_str_on_do(input: list[str]) -> list[str]:
@@ -68,52 +63,33 @@ def split_str_on_do(input: list[str]) -> list[str]:
     return result
 
 
-
-def flatten_list_to_list(input: list[list[str]]) -> list[str]:
+def remove_invalid_items(split_string: list[str]) -> list[str]:
     result = []
-    for item in input:
-        for sub_item in item:
-            result.append(sub_item)
+    for index, element in enumerate(split_string):
+        if index == 0:  # always store first element
+            result.append(element)
+        elif len(element) > 1:  # longer elements have a do() so ignore first part
+            result.append(element[1:])
+        else:  # single elements are only a dont() so ignore
+            continue
+
     return result
-
-
-def remove_incompatible_items(split_string: list[str]) -> list[str]:
-    result = []
-    for index, item in enumerate(split_string):
-        if item == 'ignore_next':
-            if index + 1 == len(split_string):
-                continue
-            else:
-                split_string.pop(index + 1) # skip the next item
-        else:
-            result.append(item)
-    return result
-
-
-def flatten_list_to_string(input: list[str]) -> str:
-    result = ''
-    for item in input:
-        result += item
-    return result
-
 
 
 ### Solution to Part 2
 if __name__ == "__main__":
-    file_path = 'day3/input_data/input_data.txt'
+    file_path = 'input_data/input_data.txt'
     input = import_data(file_path)
 
     total = 0
 
-    for line in input:
-        split_string = split_str_on_dont(line)
-        split_string = insert_between(split_string)
-        split_string = split_str_on_do(split_string)
-        split_string = flatten_list_to_list(split_string)
-        split_string = remove_incompatible_items(split_string)
-        split_string = flatten_list_to_string(split_string)
-        matches = extract_mul(split_string)
-        result = mul_tuples_and_sum(matches)
-        total += result
+    line = str(input) #treating the file as a single string worked
+    split_string = split_str_on_dont(line)
+    split_string = split_str_on_do(split_string)
+    split_string = remove_invalid_items(split_string)
+    split_string = str(split_string)
+    matches = extract_mul(split_string)
+    result = mul_tuples_and_sum(matches)
+    total += result
 
     print(total)
