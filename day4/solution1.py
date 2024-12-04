@@ -35,11 +35,11 @@ def find_valid_neighbours(coord: tuple[int, int], array_limit: tuple[int, int]) 
 
     limit = (array_limit[0], array_limit[1])
 
-    nbr_valid = [
-        neighbour for neighbour in nbr_all
-        if 0 <= neighbour[0] <= limit[0]
-           and 0 <= neighbour[1] <= limit[1]
-    ]
+    nbr_valid = []
+
+    for coord in nbr_all:
+        if check_bounds(coord, limit) == False:
+            nbr_valid.append(coord)
 
     return nbr_valid
 
@@ -57,12 +57,9 @@ def find_xmas(X_loc: list[tuple[int, int]], input: np.array) -> int:
     for curr_X in X_loc:
         print(f'Checking X at {curr_X}')
 
-        # get coords of neighbours and filter invalid locations
         nbr_coords = find_valid_neighbours(curr_X, array_limit)
-        # print(f'neighbours of {curr_X} are: {nbr_coords}')
 
-        # check which are 'M'
-        for check_M in nbr_coords:
+        for check_M in nbr_coords: # check for M
 
             if input[check_M] == 'M':
                 print(f'found M at {check_M}')
@@ -74,14 +71,14 @@ def find_xmas(X_loc: list[tuple[int, int]], input: np.array) -> int:
                 if check_bounds(check_A, array_limit):
                     continue
 
-                if input[check_A] == 'A':
+                if input[check_A] == 'A': # check for A
                     print(f'found A at {check_A}')
                     check_S = ((check_A[0] + diff_x), (check_A[1] + diff_y))
 
                     if check_bounds(check_S, array_limit):
                         continue
 
-                    if input[check_S] == 'S':
+                    if input[check_S] == 'S': # check for S
                         print(f'found S at {check_S}')
                         print(f'Found XMAS')
                         xmas_count += 1
