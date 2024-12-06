@@ -1,6 +1,8 @@
 '''
 Part 1 is a validity check
-Part 2 is a fixes the updates by running each one through the rules backwards and forwards until all rules pass.
+
+Part 2 a fixes the updates by running each one through the rules backwards and forwards until all rules pass.
+This is a brute force solution, invalid updates go through the rules up to 5 times each!
 '''
 
 def load_input(file_path: str) -> list:
@@ -69,10 +71,13 @@ def fix_updates(rules: list, updates: list) -> dict:
 
         invalid_update = True
 
+        flip_count = 0
+
         while invalid_update:
 
             invalid_rules_count = 0
             rules = rules[::-1] # reverse rules
+            flip_count += 1
 
             for rule in rules:
 
@@ -96,6 +101,7 @@ def fix_updates(rules: list, updates: list) -> dict:
         update = ",".join(update)
 
         fixed_updates_map[update] = True
+        print(f"no of flips {flip_count}")
 
     return fixed_updates_map
 
