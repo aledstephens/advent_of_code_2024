@@ -1,5 +1,6 @@
 """
 Solving the maze, basic method:
+** Part 1 **
 * Determine starting position
 * While not at edge of grid
 * Calculate next position
@@ -7,6 +8,11 @@ Solving the maze, basic method:
 * If next position is a wall, rotate array, transform coordinate of current position
 * Repeat until at edge of grid
 * Count number of visited positions
+
+** Part 2 **
+* For each position in the grid, add an obstacle
+* Repeat the navigation process
+* Count the number of times an infinite loop is encountered
 """
 
 # load as numpy array
@@ -37,11 +43,13 @@ def next_position(coord_current: tuple[int, int]) -> tuple[int, int]:
 
 
 def rotate_coord(coord_current: tuple[int, int], array_limit: tuple[int, int]) -> tuple[int, int]:
-    print(f"Rotating to {coord_current}")
+    # print(f"Rotating to {coord_current}")
     return ((array_limit[0] - 1) - coord_current[1]), coord_current[0]
 
 
-def navigate_grid(coord_current: tuple[int, int], grid: np.array):
+def navigate_grid(coord_current: tuple[int, int], grid: np.array, max_steps: int = 50000) -> int:
+    step_count = 0
+    infinite_loop = 0
     array_limit = grid.shape
     grid[coord_current] = "x"  # mark the start position as visited
 
@@ -52,10 +60,18 @@ def navigate_grid(coord_current: tuple[int, int], grid: np.array):
         if grid[coord_next] in ['.', 'x', '^']: # can move forward into any of these
             coord_current = coord_next
             grid[coord_current] = "x" # mark the position as visited
+            step_count += 1
 
         else: # can't move forward, so rotate
             grid = np.rot90(grid) # rotate the grid counter-clockwise
             coord_current = rotate_coord(coord_current, array_limit)
+
+        if step_count >= max_steps:
+            print(f"{max_steps} steps reached, infinite loop likely")
+            infinite_loop = 1
+            break
+
+    return infinite_loop
 
 def count_visited(grid: np.array) -> int:
     count = 0
@@ -65,10 +81,36 @@ def count_visited(grid: np.array) -> int:
                 count += 1
     return count
 
-file_path = 'day6/input_data/input_full.txt'
-grid = load_data(file_path)
+def count_infinite_loops(grid):
+    infinite_loop_count = 0
+    grid_init = grid.copy()
 
-coord_current = find_start(grid) # initialise starting position
-navigate_grid(coord_current, grid)
-position_count = count_visited(grid)
-print(f"Unique positions visited: {position_count}")
+    for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+            grid = grid_init.copy()
+            grid[i,j] = grid[i,j].replace('.', '#')
+            # print(f'trying obstacle at grid[{i},{j}]')
+
+            infinite_loop_count += navigate_grid(coord_current, grid)
+            # print(f"inifinite loop count: {infinite_loop_count}")
+
+    return infinite_loop_count
+
+if __name__ == '__main__':
+
+    ### Load data
+    file_path = 'day6/input_data/input_test.txt'
+    grid_master = load_data(file_path)
+    grid = grid_master.copy()
+
+    ### Part 1
+    coord_current = find_start(grid) # initialise starting position
+    navigate_grid(coord_current, grid)
+    position_count = count_visited(grid)
+    print(f"Unique positions visited: {position_count}")
+
+    ### Part 2
+    grid = grid_master.copy()
+    coord_current = find_start(grid)  # initialise starting position
+    infinite_loop_count = count_infinite_loops(grid) # this takes a couple of minutes for the full grid
+    print(f"Number of infinite loops: {infinite_loop_count}")
