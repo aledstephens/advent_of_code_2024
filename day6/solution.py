@@ -13,6 +13,9 @@ Solving the maze, basic method:
 * For each position in the grid, add an obstacle
 * Repeat the navigation process
 * Count the number of times an infinite loop is encountered
+
+** Notes **
+* To speed part 2 up the obstacles could only be places on locations visited in the first run
 """
 
 # load as numpy array
@@ -67,7 +70,7 @@ def navigate_grid(coord_current: tuple[int, int], grid: np.array, max_steps: int
             coord_current = rotate_coord(coord_current, array_limit)
 
         if step_count >= max_steps:
-            print(f"{max_steps} steps reached, infinite loop likely")
+            # print(f"{max_steps} steps reached, infinite loop likely")
             infinite_loop = 1
             break
 
@@ -89,17 +92,17 @@ def count_infinite_loops(grid):
         for j in range(grid.shape[1]):
             grid = grid_init.copy()
             grid[i,j] = grid[i,j].replace('.', '#')
-            # print(f'trying obstacle at grid[{i},{j}]')
+            print(f'trying obstacle at grid[{i},{j}]')
 
             infinite_loop_count += navigate_grid(coord_current, grid)
-            # print(f"inifinite loop count: {infinite_loop_count}")
+            print(f"inifinite loop count: {infinite_loop_count}")
 
     return infinite_loop_count
 
 if __name__ == '__main__':
 
     ### Load data
-    file_path = 'day6/input_data/input_test.txt'
+    file_path = 'day6/input_data/input_full.txt'
     grid_master = load_data(file_path)
     grid = grid_master.copy()
 
