@@ -1,6 +1,19 @@
 """
-Day 14 - Part 1
+Day 14
+
+Part 1: Safety score
+For each robot record final position
+Calculate which quadrant each robot is in
+Count number of robots in each quadrant
+
+Part 2: Xmas tree
+Store location of each robot each second
+Calculate which quadrant each robot is in each second
+Visually find when robots cluster in a single quadrant (for me it was Q4 after 6377)
 """
+
+import pandas as pd
+import plotly.express as px
 
 def load_data(file_path: str) -> list:
     with open(file_path, 'r') as f:
@@ -16,7 +29,7 @@ def extract_values(data: str) -> tuple:
     return pos, vel
 
 
-def move(p,v):
+def move(p: tuple,v: tuple) -> tuple:
     return p[0]+v[0], p[1]+v[1]
 
 
@@ -71,13 +84,16 @@ def calc_product(result: dict) -> int:
 
 def main_loop(data: list, lim: tuple, seconds: int) -> int:
 
+    location_store = {} # used for part 2
+
     robot_count = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}  # quadrant: no of robots
 
     robots = len(data)
 
     ### Main loop ###
-    for index, line in enumerate(data):
+    for index, line in enumerate(data): # each robot
         p, v = extract_values(data[index])
+        location_store[index] = [p]
 
         print(f"robot {index} of {robots}: starting position {p}")
 
@@ -86,6 +102,7 @@ def main_loop(data: list, lim: tuple, seconds: int) -> int:
             val_p = valid_pos(new_p, lim)
             # print(f"after iteration {i}, position {val_p}")
             p = val_p
+            location_store[index].append(p)
 
         quadrant = find_quadrant(p, lim)
         robot_count[quadrant] += 1
@@ -95,14 +112,65 @@ def main_loop(data: list, lim: tuple, seconds: int) -> int:
 
     print(f"Quadrant count: {robot_count}")
 
-    return product
+    return product, location_store
+
+
+def find_quadrants_all_robots(location_store: dict, lim: tuple) -> pd.DataFrame:
+    """
+    For each robot, calculate the quadrant it is in for each second.
+    """
+
+    quad_store = {}
+
+    for index, data in location_store.items():
+        quad_store[index] = []
+        for pos in data:
+            quad = find_quadrant(pos, lim)
+            quad_store[index].append(quad)
+
+    df = pd.DataFrame(quad_store)
+
+    # for each row count the number of robots in each quadrant
+    df["quad1"] = df.apply(lambda row: row.value_counts().get(1, 0), axis=1)
+    df["quad2"] = df.apply(lambda row: row.value_counts().get(2, 0), axis=1)
+    df["quad3"] = df.apply(lambda row: row.value_counts().get(3, 0), axis=1)
+    df["quad4"] = df.apply(lambda row: row.value_counts().get(4, 0), axis=1)
+
+    return df
+
+
+def plot_quadrants(df: pd.DataFrame):
+    """
+    Plot the number of robots in each quadrant over time.
+    """
+    fig = px.scatter(df, y=["quad1", "quad2", "quad3", "quad4"], title="Number of robots in each quadrant over time")
+    fig.update_layout(
+        xaxis_title="Seconds",
+        yaxis_title="Robots in quadrant",
+        legend_title="Quadrant no.",
+        font=dict(
+            family="Courier New, monospace",
+            size=12,
+            color="RebeccaPurple"),
+        plot_bgcolor='white'
+    )
+
+    fig.show()
 
 
 if __name__ == "__main__":
 
+    ### Part 1
     file_path = "day14/input_data/input_full.txt"
     data = load_data(file_path)
     lim = (101, 103)  # (width, height)
-    seconds = 100
-    product = main_loop(data, lim, seconds)
+    seconds = 8000
+    product, location_store = main_loop(data, lim, seconds)
     print(f"Product of robots in quadrants: {product}")
+
+    ### Part 2
+    df = find_quadrants_all_robots(location_store, lim)
+    plot_quadrants(df)
+    # stats show grouping into a single quadrant
+    df[['quad1', 'quad2', 'quad3', 'quad4']].max()
+    df[['quad1', 'quad2', 'quad3', 'quad4']].idxmax()

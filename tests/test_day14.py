@@ -62,10 +62,12 @@ def test_main_loop():
     data = load_data("../day14/input_data/input_test.txt")
     lim = (11, 7)
     seconds = 100
-    assert main_loop(data, lim, seconds) == 12
+    product, location_store = main_loop(data, lim, seconds)
+    assert product == 12
 
 def test_main_loop_minimal():
     data = load_data("../day14/input_data/input_minimal.txt")
     lim = (11, 7)
     seconds = 5
-    assert main_loop(data, lim, seconds) == 0
+    product, location_store = main_loop(data, lim, seconds)
+    assert product == 0
